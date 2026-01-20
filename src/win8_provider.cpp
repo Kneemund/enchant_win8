@@ -1,4 +1,8 @@
-/* HexChat
+/* MIT License
+ *
+ * Copyright (c) 2026 Moritz Mechelk
+ *
+ * HexChat
  * Copyright (c) 2015 Patrick Griffis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8,24 +12,22 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include <Spellcheck.h>
 #include <glib.h>
 
 #include <enchant-provider.h>
-
-ENCHANT_PLUGIN_DECLARE ("win8")
 
 /* --------- Utils ----------*/
 
@@ -92,7 +94,7 @@ enumstring_to_chararray (IEnumString *strings, size_t *out_len, gboolean from_bc
 /* ---------- Dict ------------ */
 
 static void
-win8_dict_add_to_personal (EnchantDict *dict, const char *const word, size_t len)
+win8_dict_add_to_personal (EnchantProviderDict *dict, const char *const word, size_t len)
 {
 	auto checker = static_cast<ISpellChecker*>(dict->user_data);
 	wchar_t *wword = utf8_to_utf16 (word, len, FALSE);
@@ -102,7 +104,7 @@ win8_dict_add_to_personal (EnchantDict *dict, const char *const word, size_t len
 }
 
 static void
-win8_dict_add_to_session (EnchantDict *dict, const char *const word, size_t len)
+win8_dict_add_to_session (EnchantProviderDict *dict, const char *const word, size_t len)
 {
 	auto checker = static_cast<ISpellChecker*>(dict->user_data);
 	wchar_t *wword = utf8_to_utf16 (word, len, FALSE);
@@ -112,7 +114,7 @@ win8_dict_add_to_session (EnchantDict *dict, const char *const word, size_t len)
 }
 
 static int
-win8_dict_check (EnchantDict *dict, const char *const word, size_t len)
+win8_dict_check (EnchantProviderDict *dict, const char *const word, size_t len)
 {
 	auto checker = static_cast<ISpellChecker*>(dict->user_data);
 	wchar_t *wword = utf8_to_utf16 (word, len, FALSE);
@@ -140,7 +142,7 @@ win8_dict_check (EnchantDict *dict, const char *const word, size_t len)
 }
 
 static char **
-win8_dict_suggest (EnchantDict *dict, const char *const word, size_t len, size_t *out_n_suggs)
+win8_dict_suggest (EnchantProviderDict *dict, const char *const word, size_t len, size_t *out_n_suggs)
 {
 	auto checker = static_cast<ISpellChecker*>(dict->user_data);
 	wchar_t *wword = utf8_to_utf16 (word, len, FALSE);
@@ -161,12 +163,12 @@ win8_dict_suggest (EnchantDict *dict, const char *const word, size_t len, size_t
 
 /* ---------- Provider ------------ */
 
-static EnchantDict *
+static EnchantProviderDict *
 win8_provider_request_dict (EnchantProvider *provider, const char *const tag)
 {
 	auto factory = static_cast<ISpellCheckerFactory*>(provider->user_data);
 	ISpellChecker *checker;
-	EnchantDict *dict;
+	EnchantProviderDict *dict;
 	wchar_t *wtag = utf8_to_utf16 (tag, -1, TRUE);
 	HRESULT hr;
 
@@ -176,7 +178,7 @@ win8_provider_request_dict (EnchantProvider *provider, const char *const tag)
 	if (FAILED (hr))
 		return nullptr;
 
-	dict = g_new0 (EnchantDict, 1);
+	dict = enchant_provider_dict_new (provider, tag);
 	dict->suggest = win8_dict_suggest;
 	dict->check = win8_dict_check;
 	dict->add_to_personal = win8_dict_add_to_personal;
@@ -189,7 +191,7 @@ win8_provider_request_dict (EnchantProvider *provider, const char *const tag)
 }
 
 static void
-win8_provider_dispose_dict (EnchantProvider *provider, EnchantDict *dict)
+win8_provider_dispose_dict (EnchantProvider *provider, EnchantProviderDict *dict)
 {
 	if (dict)
 	{
@@ -229,11 +231,6 @@ win8_provider_list_dicts (EnchantProvider *provider, size_t *out_n_dicts)
 	return enumstring_to_chararray (dicts, out_n_dicts, TRUE);
 }
 
-static void
-win8_provider_free_string_list (EnchantProvider *provider, char **str_list)
-{
-	g_strfreev (str_list);
-}
 
 static void
 win8_provider_dispose (EnchantProvider *provider)
@@ -259,8 +256,7 @@ win8_provider_describe (EnchantProvider *provider)
 	return "Windows 8 SpellCheck Provider";
 }
 
-extern "C"
-{
+extern "C" EnchantProvider* init_enchant_provider(void);
 
 EnchantProvider *
 init_enchant_provider (void)
@@ -272,7 +268,7 @@ init_enchant_provider (void)
 				CLSCTX_INPROC_SERVER, IID_PPV_ARGS (&factory))))
 		return nullptr;
 
-	provider = g_new0 (EnchantProvider, 1);
+	provider = enchant_provider_new ();
 	provider->dispose = win8_provider_dispose;
 	provider->request_dict = win8_provider_request_dict;
 	provider->dispose_dict = win8_provider_dispose_dict;
@@ -280,11 +276,8 @@ init_enchant_provider (void)
 	provider->identify = win8_provider_identify;
 	provider->describe = win8_provider_describe;
 	provider->list_dicts = win8_provider_list_dicts;
-	provider->free_string_list = win8_provider_free_string_list;
 
 	provider->user_data = factory;
 
 	return provider;
-}
-
 }
