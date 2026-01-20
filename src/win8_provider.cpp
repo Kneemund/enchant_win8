@@ -109,10 +109,17 @@ static void
 win8_dict_remove_from_session (EnchantProviderDict *dict, const char *const word, size_t len)
 {
 	auto checker = static_cast<ISpellChecker*>(dict->user_data);
-	wchar_t *wword = utf8_to_utf16 (word, len, FALSE);
 
-	checker->Remove (wword);
-	g_free (wword);
+	/* Try to use ISpellChecker2::Remove if available (Windows 10+) */
+	ISpellChecker2 *checker2 = nullptr;
+	if (SUCCEEDED (checker->QueryInterface (__uuidof(ISpellChecker2), (void**)&checker2)))
+	{
+	    wchar_t *wword = utf8_to_utf16 (word, len, FALSE);
+		checker2->Remove (wword);
+
+		checker2->Release ();
+		g_free (wword);
+	}
 }
 
 static int
