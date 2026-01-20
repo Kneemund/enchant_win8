@@ -6,6 +6,9 @@ PKG_CONFIG := pkg-config
 # Packages
 PACKAGES := glib-2.0 enchant-2
 
+# Include directories
+INCLUDES := -Ienchant/lib
+
 # Source and output
 SRC := src/win8_provider.c
 TARGET := libenchant_win8.dll
@@ -19,7 +22,7 @@ PKG_LIBS := $(shell $(PKG_CONFIG) --libs $(PACKAGES))
 all: $(TARGET)
 
 $(TARGET): $(SRC)
-	$(CC) $(CFLAGS) $(PKG_CFLAGS) -o $@ $< $(PKG_LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(PKG_CFLAGS) -o $@ $< $(PKG_LIBS)
 
 clean:
 	rm -f $(TARGET)

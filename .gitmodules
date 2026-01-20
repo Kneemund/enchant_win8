@@ -1,0 +1,3 @@
+[submodule "enchant"]
+	path = enchant
+	url = https://github.com/rrthomas/enchant
