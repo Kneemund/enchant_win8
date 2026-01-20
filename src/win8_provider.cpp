@@ -199,7 +199,7 @@ win8_provider_request_dict (EnchantProvider *provider, const char *const tag)
 }
 
 static void
-win8_provider_dispose_dict (EnchantProvider *provider, EnchantProviderDict *dict)
+win8_provider_dispose_dict (EnchantProvider * /* provider */, EnchantProviderDict *dict)
 {
 	if (dict)
 	{
@@ -251,13 +251,13 @@ win8_provider_dispose (EnchantProvider *provider)
 }
 
 static const char *
-win8_provider_identify (EnchantProvider *provider)
+win8_provider_identify (EnchantProvider * /* provider */)
 {
 	return "win8";
 }
 
 static const char *
-win8_provider_describe (EnchantProvider *provider)
+win8_provider_describe (EnchantProvider * /* provider */)
 {
 	return "Windows 8 SpellCheck Provider";
 }
