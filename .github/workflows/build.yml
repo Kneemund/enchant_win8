@@ -24,6 +24,9 @@ jobs:
           update: true
           install: mingw-w64-x86_64-gcc mingw-w64-x86_64-enchant
 
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Build
         run: gcc -shared -fPIC -o libenchant_win8.dll src/win8_provider.c
 
