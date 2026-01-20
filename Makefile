@@ -1,6 +1,6 @@
 # Compiler and flags
-CC := gcc
-CFLAGS := -shared -fPIC -Wall -Wextra
+CXX := g++
+CXXFLAGS := -shared -fPIC -Wall -Wextra
 PKG_CONFIG := pkg-config
 
 # Packages
@@ -10,7 +10,7 @@ PACKAGES := glib-2.0 enchant-2
 INCLUDES := -Ienchant/lib
 
 # Source and output
-SRC := src/win8_provider.c
+SRC := src/win8_provider.cpp
 TARGET := libenchant_win8.dll
 
 # Get flags from pkg-config
@@ -22,7 +22,7 @@ PKG_LIBS := $(shell $(PKG_CONFIG) --libs $(PACKAGES))
 all: $(TARGET)
 
 $(TARGET): $(SRC)
-	$(CC) $(CFLAGS) $(INCLUDES) $(PKG_CFLAGS) -o $@ $< $(PKG_LIBS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(PKG_CFLAGS) -o $@ $< $(PKG_LIBS)
 
 clean:
 	rm -f $(TARGET)
