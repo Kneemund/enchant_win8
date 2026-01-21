@@ -23,7 +23,7 @@ jobs:
           update: true
           install: |
             mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-autotools
+            mingw-w64-x86_64-meson
             mingw-w64-x86_64-glib2
             mingw-w64-x86_64-enchant
 
@@ -32,14 +32,17 @@ jobs:
         with:
           submodules: true
 
+      - name: Configure
+        run: meson setup _mesonbuild
+
       - name: Build
-        run: make
+        run: meson compile -C _mesonbuild
 
       - name: Upload (workflow artifact)
         uses: actions/upload-artifact@v4
         with:
           name: libenchant_win8
-          path: libenchant_win8.dll
+          path: _mesonbuild/enchant_win8.dll
           if-no-files-found: error
 
       - name: Upload (release asset)
@@ -47,4 +50,4 @@ jobs:
         shell: powershell
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.ref_name }} libenchant_win8.dll
+        run: gh release upload ${{ github.ref_name }} _mesonbuild/enchant_win8.dll

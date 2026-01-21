@@ -25,6 +25,7 @@
  */
 
 #include <enchant-provider.h>
+#include <glib.h>
 #include <spellcheck.h>
 
 /* --------- Utils ----------*/
@@ -102,10 +103,11 @@ win8_dict_remove_from_session(EnchantProviderDict* dict, const char* const word,
     ISpellChecker2* checker2 = nullptr;
     if (SUCCEEDED(checker->QueryInterface(__uuidof(ISpellChecker2), (void**)&checker2))) {
         wchar_t* wword = utf8_to_utf16(word, len, FALSE);
+
         checker2->Remove(wword);
+        g_free(wword);
 
         checker2->Release();
-        g_free(wword);
     }
 }
 
@@ -184,7 +186,7 @@ win8_provider_request_dict(EnchantProvider* provider, const char* const tag)
 }
 
 static void
-win8_provider_dispose_dict(EnchantProvider* /* provider */, EnchantProviderDict* dict)
+win8_provider_dispose_dict(_GL_UNUSED EnchantProvider* provider, EnchantProviderDict* dict)
 {
     if (dict) {
         auto checker = static_cast<ISpellChecker*>(dict->user_data);
@@ -224,20 +226,18 @@ win8_provider_dispose(EnchantProvider* provider)
 {
     if (provider) {
         auto factory = static_cast<ISpellCheckerFactory*>(provider->user_data);
-
         factory->Release();
-        g_free(provider);
     }
 }
 
 static const char*
-win8_provider_identify(EnchantProvider* /* provider */)
+win8_provider_identify(_GL_UNUSED EnchantProvider* provider)
 {
     return "win8";
 }
 
 static const char*
-win8_provider_describe(EnchantProvider* /* provider */)
+win8_provider_describe(_GL_UNUSED EnchantProvider* provider)
 {
     return "Windows 8 SpellCheck Provider";
 }
