@@ -6,14 +6,6 @@ project('enchant_win8', 'cpp',
   ],
 )
 
-# Dependencies
-glib_dep = dependency('glib-2.0')
-enchant_dep = dependency('enchant-2')
-
-# Get the enchant provider directory from enchant-2's libdir
-enchant_libdir = enchant_dep.get_variable(pkgconfig: 'libdir')
-enchant_provider_dir = enchant_libdir / 'enchant-2'
-
 # Windows COM libraries
 win_libs = [
   meson.get_compiler('cpp').find_library('ole32'),
@@ -27,19 +19,16 @@ win_version_flags = [
   '-DNTDDI_VERSION=NTDDI_WIN8',
 ]
 
-# Include directories
-enchant_inc = include_directories('enchant/lib') # enchant-provider.h
-
-# Source files
-sources = files('src/win8_provider.cpp')
-
 # Build shared module
 shared_module('enchant_win8',
-  sources,
-  dependencies: [glib_dep, enchant_dep, win_libs],
-  include_directories: enchant_inc,
+  'src' / 'win8_provider.cpp',
+  dependencies: [
+    dependency('glib-2.0'),
+    dependency('enchant-2'),
+    win_libs
+  ],
+  include_directories: include_directories('enchant' / 'lib'), # enchant-provider.h
   cpp_args: win_version_flags,
-  name_prefix: '',
   install: true,
-  install_dir: enchant_provider_dir,
+  install_dir: get_option('libdir') / 'enchant-2',
 )

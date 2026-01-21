@@ -40,7 +40,7 @@ jobs:
         run: meson compile -C _mesonbuild
 
       - name: Install
-        run: meson install -C _mesonbuild
+        run: meson install -C _mesonbuild --tags runtime
 
       - name: Upload (workflow artifact)
         uses: actions/upload-artifact@v4
