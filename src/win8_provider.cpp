@@ -25,10 +25,7 @@
  */
 
 #include <enchant-provider.h>
-#include <glib.h>
-#include <objbase.h>
 #include <spellcheck.h>
-#include <windows.h>
 
 /* --------- Utils ----------*/
 
