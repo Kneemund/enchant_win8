@@ -23,10 +23,10 @@ The provider works with Windows 8+, but removing words that were previously adde
    ```
 3. Compile using meson.
    ```sh
-   meson setup --prefix=/usr _mesonbuild
+   meson setup --prefix=C:/msys64/mingw64 _mesonbuild
    meson compile -C _mesonbuild
    ```
 4. Optionally install using meson.
    ```sh
-   meson setup --prefix=/usr _mesonbuild
+   meson install -C _mesonbuild
    ```

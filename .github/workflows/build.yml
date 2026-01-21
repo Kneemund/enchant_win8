@@ -4,6 +4,7 @@ name: Build
 "on":
   release:
     types: [published]
+  push:
   workflow_dispatch:
 
 jobs:
@@ -33,10 +34,13 @@ jobs:
           submodules: true
 
       - name: Configure
-        run: meson setup _mesonbuild
+        run: meson setup --prefix=C:/msys64/mingw64 _mesonbuild
 
       - name: Build
         run: meson compile -C _mesonbuild
+
+      - name: Install
+        run: meson install -C _mesonbuild
 
       - name: Upload (workflow artifact)
         uses: actions/upload-artifact@v4
