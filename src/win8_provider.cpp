@@ -72,25 +72,23 @@ utf8_to_utf16 (const char * const str, size_t len, gboolean to_bcp47)
 static char **
 enumstring_to_chararray (IEnumString *strings, size_t *out_len, gboolean from_bcp47)
 {
-	char **chars = g_new (char*, 256); /* Hopefully large enough */
+	GArray *array = g_array_new (TRUE, FALSE, sizeof (char*));
 	LPOLESTR wstr = nullptr;
-	size_t i = 0;
 
-	while (SUCCEEDED (strings->Next (1, &wstr, nullptr)) && i < 256 && wstr)
+	while (SUCCEEDED (strings->Next (1, &wstr, nullptr)) && wstr)
 	{
 		char *str = utf16_to_utf8 (wstr, from_bcp47);
 		if (str)
 		{
-			chars[i] = str;
-			i++;
+			g_array_append_val (array, str);
 		}
 		CoTaskMemFree (wstr);
 	}
-	chars[i] = nullptr;
 	strings->Release ();
 
-	*out_len = i;
-	return chars;
+	*out_len = array->len;
+	char **result = (char**)g_array_free (array, FALSE);
+	return result;
 }
 
 /* ---------- Dict ------------ */
