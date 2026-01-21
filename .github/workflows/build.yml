@@ -45,7 +45,7 @@ jobs:
       - name: Upload (workflow artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: libenchant_win8
+          name: enchant_win8
           path: _mesonbuild/enchant_win8.dll
           if-no-files-found: error
 

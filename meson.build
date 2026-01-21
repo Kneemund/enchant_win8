@@ -1,5 +1,5 @@
-project('libenchant_win8', 'cpp',
-  version: '1.0.0',
+project('enchant_win8', 'cpp',
+  version: '0.1.0',
   default_options: [
     'warning_level=2',
     'cpp_std=c++11',
@@ -33,8 +33,8 @@ enchant_inc = include_directories('enchant/lib') # enchant-provider.h
 # Source files
 sources = files('src/win8_provider.cpp')
 
-# Build shared library
-shared_library('enchant_win8',
+# Build shared module
+shared_module('enchant_win8',
   sources,
   dependencies: [glib_dep, enchant_dep, win_libs],
   include_directories: enchant_inc,
